@@ -1,120 +1,142 @@
-import React from 'react'
-import { Keyboard, KeyboardAvoidingView, Platform, Text, TouchableOpacity, View } from 'react-native'
+import React, { useContext, useEffect } from 'react'
+import { Alert, Keyboard, KeyboardAvoidingView, Platform, Text, TouchableOpacity, View } from 'react-native'
 import { WhiteLogo } from '../components/WhiteLogo'
 import { BackGround } from './BackGround'
 import { loginStyles } from '../theme/LoginTheme';
 import { TextInput } from 'react-native-gesture-handler';
 import { useForm } from '../hooks/useForm';
 import { StackScreenProps } from '@react-navigation/stack';
+import { AuthContext } from '../context/AuthContext';
 
-interface Props extends StackScreenProps<any, any> {}
+interface Props extends StackScreenProps<any, any> { }
 
-export const LoginScreen = (navigation: Props ) => {
+export const LoginScreen = (navigation: Props) => {
 
-  const {email, password, onChange} = useForm({
+  const { singIn, errorMessage, removeError } = useContext(AuthContext)
+
+  const { email, password, onChange } = useForm({
     email: '',
     password: ''
   })
 
   const onLogin = () => {
-    console.log({email, password});
+    console.log({ email, password });
     Keyboard.dismiss();
+
+    singIn({ correo: email, password })
   }
+
+  useEffect(() => {
+    if (errorMessage.length === 0) return;
+
+    Alert.alert('Login incorrecto', errorMessage, [
+      {
+        text: 'Ok',
+        onPress: removeError
+      }
+    ])
+
+  }, [errorMessage])
+
 
   return (
     <>
       {/* background */}
       <BackGround />
 
-      <KeyboardAvoidingView style={{flex:1}} 
-        behavior= {(Platform.OS === 'ios') ? 'padding': 'height'}
+      <KeyboardAvoidingView style={{ flex: 1 }}
+        behavior={(Platform.OS === 'ios') ? 'height' : 'height'}
       >
 
-      
-      <View style={loginStyles.formContainer} >
-        {/* keyboard avoid view */}
 
-        <WhiteLogo />
+        <View style={loginStyles.formContainer} >
+          {/* keyboard avoid view */}
 
-        <Text style={loginStyles.title} >Login</Text>
+          <WhiteLogo />
 
-        <Text style={loginStyles.label} >Email</Text>
+          <Text style={loginStyles.title} >Login</Text>
 
-        <TextInput
-          placeholder='Ingrese su email'
-          placeholderTextColor="rgba(255,255,255,0.4)"
-          keyboardType='email-address'
-          underlineColorAndroid="white"
-          style={[
-            loginStyles.inputField,
-            (Platform.OS === 'ios') && loginStyles.inputFieldIOS
-          ]}
+          <Text style={loginStyles.label} >Email</Text>
 
-          selectionColor="white"
+          <TextInput
+            placeholder='Ingrese su email'
+            placeholderTextColor="rgba(255,255,255,0.4)"
+            keyboardType='email-address'
+            underlineColorAndroid="white"
+            style={[
+              loginStyles.inputField,
+              (Platform.OS === 'ios') && loginStyles.inputFieldIOS
+            ]}
 
-          onChangeText={(value) => onChange(value, 'email')}
-          value={email}
+            selectionColor="white"
 
-          onSubmitEditing={onLogin}
+            onChangeText={(value) => onChange(value, 'email')}
+            value={email}
 
-          autoCapitalize='none'
-          autoCorrect={false}
-        />
-        <TextInput
-          placeholder='******'
+            onSubmitEditing={onLogin}
 
-          placeholderTextColor="rgba(255,255,255,0.4)"
-          underlineColorAndroid="white"
-          style={[
-            loginStyles.inputField,
-            (Platform.OS === 'ios') && loginStyles.inputFieldIOS
-          ]}
+            autoCapitalize='none'
+            autoCorrect={false}
+          />
+          <TextInput
+            placeholder='******'
 
-          selectionColor="white"
-          secureTextEntry
+            placeholderTextColor="rgba(255,255,255,0.4)"
+            underlineColorAndroid="white"
+            style={[
+              loginStyles.inputField,
+              (Platform.OS === 'ios') && loginStyles.inputFieldIOS
+            ]}
 
-          onChangeText={(value) => onChange(value, 'password')}
-          value={password}
-          onSubmitEditing={onLogin}
+            selectionColor="white"
+            secureTextEntry
 
-          autoCapitalize='none'
-          autoCorrect={false}
-        />
+            onChangeText={(value) => onChange(value, 'password')}
+            value={password}
+            onSubmitEditing={onLogin}
 
-        {/* boton login */}
-        <View
-          style={loginStyles.buttonContainer}
-        >
+            autoCapitalize='none'
+            autoCorrect={false}
+          />
 
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={loginStyles.button}
-            onPress={onLogin}
+          {/* boton login */}
+          <View
+            style={loginStyles.buttonContainer}
           >
-            <Text style={loginStyles.buttonText} >Login</Text>
-          </TouchableOpacity>
+
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={loginStyles.button}
+              onPress={onLogin}
+            >
+              <Text style={loginStyles.buttonText} >Login</Text>
+            </TouchableOpacity>
+
+          </View>
+          {/* crear una nueva cuentas */}
+          <View style={loginStyles.newUserContainer} >
+
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => console.log('press')}
+
+            >
+              <Text style={loginStyles.buttonText}
+                onPress={() => navigation.navigation.replace('RegisterScreen')}
+              >Nueva cuenta </Text>
+
+            </TouchableOpacity>
+          </View>
 
         </View>
-        {/* crear una nueva cuentas */}
-        <View style={loginStyles.newUserContainer} >
-
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => console.log('press')}
-
-          >
-            <Text style={loginStyles.buttonText} 
-              onPress={() => navigation.navigation.replace('RegisterScreen')}
-            >Nueva cuenta </Text>
-
-          </TouchableOpacity>
-        </View>
-
-      </View>
       </KeyboardAvoidingView>
     </>
   )
 }
 
 
+
+function removeError(): void {
+  throw new Error('Function not implemented.');
+}
 
